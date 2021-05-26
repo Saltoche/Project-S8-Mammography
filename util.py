@@ -145,7 +145,23 @@ def filtre_conv(type,image):
     return Convolution2D(mask,image)
 
 camera=sk.data.camera()
-noise=noisy("s&p",image)
+noise=noisy("gauss",image)
+
+def filtpb_butter(A, fc, ordre): 
+    M,N=A.shape
+    # Image dans le domaine fréquentiel
+    AA = np.fft.fftshift(np.fft.fft2(A)) 
+    M0 = np.ceil((M+1) / 2)
+    N0 = np.ceil((N+1) / 2)
+    U, V = np.mgrid[1:M+1, 1:N+1]
+    D2 = (U - M0)**2 + (V - N0)**2
+# Réponse fréquentielle du filtre Butterworth
+    HH = 1 / (1 + (D2 / fc**2)**ordre)
+# Application du filtre et retour au domaine spatial
+    BB = np.fft.ifftshift(AA * HH) 
+    B = np.fft.ifft2(BB)
+    B = np.real(B)
+    return B
 
 
 #adaptive_threshold = filters.threshold_local(image, 151)
@@ -166,29 +182,39 @@ def PSNR(image,filt):
 #print(MSE(image,filt2))
 #print(MSE(image,filt3))
 
+filt=filtpb_butter(image,46,3)
+#filt=median_filter(image)
+plt.figure()
+plt.subplot(1,2,1)
+plt.imshow(filt,cmap='gray')
+plt.subplot(1,2,2)
+plt.imshow(image,cmap='gray')
+plt.show()
+print(PSNR(filt,image))
 
-filt1=filtre_conv('binomial',noise)
-filt2=filtre_conv('mean',noise)
-filt3=median_filter(noise)
-print(PSNR(image,filt1))
-print(PSNR(image,filt2))
-print(PSNR(image,filt3))
-plt.figure(figsize=(16, 4))
-plt.subplot(231)
-plt.imshow(image,cmap = plt.get_cmap('gray'),vmin=image.min(),vmax=image.max())
-plt.title("Image originale")
-plt.subplot(232)
-plt.imshow(filt1,cmap = plt.get_cmap('gray'),vmin=filt1.min(),vmax=filt1.max())
-plt.title("Filtre binomial")
-plt.subplot(233)
-plt.imshow(filt2,cmap = plt.get_cmap('gray'),vmin=filt2.min(),vmax=filt2.max())
-plt.title("Filtre moyen")
-plt.subplot(234)
-plt.imshow(filt3,cmap = plt.get_cmap('gray'),vmin=filt3.min(),vmax=filt3.max())
-plt.title("Filtre médian")
-plt.subplot(235)
-plt.imshow(noise,cmap = plt.get_cmap('gray'),vmin=noise.min(),vmax=noise.max())
-plt.title("Bruit salt and pepper")
+
+#filt1=filtre_conv('binomial',noise)
+#filt2=filtre_conv('mean',noise)
+#filt3=median_filter(noise)
+#print(PSNR(image,filt1))
+#print(PSNR(image,filt2))
+#print(PSNR(image,filt3))
+#plt.figure(figsize=(16, 4))
+#plt.subplot(231)
+#plt.imshow(image,cmap = plt.get_cmap('gray'),vmin=image.min(),vmax=image.max())
+#plt.title("Image originale")
+#plt.subplot(232)
+#plt.imshow(filt1,cmap = plt.get_cmap('gray'),vmin=filt1.min(),vmax=filt1.max())
+#plt.title("Filtre binomial")
+#plt.subplot(233)
+#plt.imshow(filt2,cmap = plt.get_cmap('gray'),vmin=filt2.min(),vmax=filt2.max())
+#plt.title("Filtre moyen")
+#plt.subplot(234)
+#plt.imshow(filt3,cmap = plt.get_cmap('gray'),vmin=filt3.min(),vmax=filt3.max())
+#plt.title("Filtre médian")
+#plt.subplot(235)
+#plt.imshow(noise,cmap = plt.get_cmap('gray'),vmin=noise.min(),vmax=noise.max())
+#plt.title("Bruit salt and pepper")
 
 #filt1=filtre_conv('xsobel',noise)
 #filt2=filtre_conv('ysobel',noise)
