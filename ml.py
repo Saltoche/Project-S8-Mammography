@@ -1,6 +1,7 @@
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+import keras as keras
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Conv2D, MaxPool2D, Flatten
@@ -270,9 +271,9 @@ img_train2 = []
 lb_train2 = []
 M2=[]
 
-ang2=20
+ang2=10
 for angle in range(ang2):
-    M2.append(cv2.getRotationMatrix2D(((cols-1) / 2, (rows-1) / 2), 4*angle, 1))
+    M2.append(cv2.getRotationMatrix2D(((cols2-1) / 2, (rows2-1) / 2), 4*angle, 1))
 for i in range(len(x_train2)):
     try : 
         img = cv2.resize(x_train2[i],(rows2,cols2))
@@ -362,7 +363,7 @@ model2.summary()
 model2.compile(optimizer='adam',loss='binary_crossentropy',metrics=['accuracy'])
 early_stop = EarlyStopping(monitor='loss', mode='auto', patience=1,restore_best_weights=True, verbose=1)
 
-check_point_filepath = 'D:/Cours CS/Projet S8/Project-S8-Mammography'
+check_point_filepath2 = 'D:/Cours CS/Projet S8/Project-S8-Mammography/SvsBvsM.hdf5'
 
 model_check_point = ModelCheckpoint(filepath =check_point_filepath, monitor='val_accuracy', verbose=1, save_best_only=True, save_weights_only=False, mode='auto', save_freq='epoch')
 
@@ -386,5 +387,73 @@ for i in range(len(y_test3)):
 
 model2.evaluate(x_test2,y_test3)
 ###
-model3=model()
 
+y_train3=y_train2
+for i in range(len(y_train3)):
+    if y_train3[i]==2:
+        y_train3[i]=1
+
+model3=model()
+model3.compile(optimizer='adam',loss='binary_crossentropy',metrics=['accuracy'])
+early_stop = EarlyStopping(monitor='loss', mode='auto', patience=1,restore_best_weights=True, verbose=1)
+
+check_point_filepath3 = 'D:/Cours CS/Projet S8/Project-S8-Mammography/SvsB&M.hdf5'
+
+model_check_point = ModelCheckpoint(filepath =check_point_filepath3, monitor='val_accuracy', verbose=1, save_best_only=True, save_weights_only=False, mode='auto', save_freq='epoch')
+
+
+
+hist = model3.fit(x_train2,
+                 y_train3,
+                 epochs=10,
+                 batch_size=64,
+                 callbacks=[early_stop, model_check_point],validation_data=(x_test2,y_test2),initial_epoch=0)
+
+chdir('D:/Cours CS/Projet S8/Project-S8-Mammography')
+model3=keras.models.load_model('')
+model3.evaluate(x_test2,y_test3)
+
+from test44 import sliders_gauss, sliders_butter
+
+x_testbut=[]
+for i in range(len(x_test2)):
+    im=x_test2[i]
+    (a,b,c)=im.shape
+    im1=np.reshape(im,(a,b))
+    x_testbut.append(sliders_butter(im1,a=3))
+x_testbut=np.array(x_testbut)
+(a,b,c)=x_testbut.shape
+x_testbut=x_testbut.reshape((a,b,c,1))
+
+
+x_trainbut=[]
+for i in range(len(x_train2)):
+    im=x_train2[i]
+    (a,b,c)=im.shape
+    im1=np.reshape(im,(a,b))
+    x_trainbut.append(sliders_butter(im1,a=3))
+x_trainbut=np.array(x_trainbut)
+(a,b,c)=x_trainbut.shape
+x_trainbut=x_trainbut.reshape((a,b,c,1))
+
+x_testgauss=[]
+for i in range(len(x_test2)):
+    im=x_test2[i]
+    (a,b,c)=im.shape
+    im1=np.reshape(im,(a,b))
+    x_testgauss.append(sliders_gauss(im1,a=3))
+x_testgauss=np.array(x_testgauss)
+(a,b,c)=x_testgauss.shape
+x_testgauss=x_testgauss.reshape((a,b,c,1))
+
+x_traingauss=[]
+for i in range(len(x_train2)):
+    im=x_train2[i]
+    (a,b,c)=im.shape
+    im1=np.reshape(im,(a,b))
+    x_traingauss.append(sliders_gauss(im1,a=3))
+x_traingauss=np.array(x_traingauss)
+(a,b,c)=x_traingauss.shape
+x_traingauss=x_traingauss.reshape((a,b,c,1))
+
+model3.evaluate(x_test2, y_test3)

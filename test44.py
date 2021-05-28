@@ -13,7 +13,7 @@ from pylab import ginput
 from scipy import signal
 import matplotlib
 from scipy.ndimage import convolve 
-from ipywidgets import *
+#from ipywidgets import *
 
 #matplotlib inline 
 plt.rcParams["figure.figsize"] = (12, 10)
@@ -60,28 +60,24 @@ def filtpb_butter(A, fc, ordre):
 #%matplotlib inline plt.rcParams["figure.figsize"] = (12, 10)
 
 dpiGlobal = 100
-def sliders_gauss(a=1, fc=40):
-    pb_gauss = filtpb_gauss(img, fc)
-    img_gauss = img + a*(img-pb_gauss)
+def sliders_gauss(image,a=1, fc=40):
+    pb_gauss = filtpb_gauss(image, fc)
+    img_gauss = image + a*(image-pb_gauss)
     #plt.figure(dpi=dpiGlobal)
-    plt.imshow(img_gauss, cmap="gray",vmin=0,vmax=255, interpolation="none") 
-    plt.title(f'Filtre gaussien (a={a},fc={fc})')
-    plt.show()
+    return img_gauss
 #slider1 = interactive(sliders_gauss, a=(1, 3, 0.5), fc=(1, 50, 5)) 
 #display(slider1)
-def sliders_butter(a=3, fc=46, ordre=2):
-    pb_butter = filtpb_butter(img, fc, ordre)
-    img_butter = img + a*(img-pb_butter)
+def sliders_butter(image,a=3, fc=46, ordre=2):
+    pb_butter = filtpb_butter(image, fc, ordre)
+    img_butter = image + a*(image-pb_butter)
     #plt.figure(dpi=dpiGlobal)
-    plt.imshow(img_butter, cmap="gray",vmin=0,vmax=255, interpolation="none") 
-    plt.title(f'Filtre butterworth (a={a},fc={fc}, ordre={ordre})') 
-    plt.show()
+    return img_butter
 #slider2 = interactive(sliders_butter, a=(1, 3, 0.5), fc=(1, 50, 5),ordre=(1,10,1))
 #figure(2)
 #img_gauss = img + (img - filtpb_gauss(img, 26))
 #img_butter = img + 3*(img - filtpb_butter(img, 46, 2))
-img_gauss=img-filtpb_gauss(img, 26)
-img_butter=img-filtpb_butter(img, 46, 2)
+img_gauss=img+10*(img-filtpb_gauss(img, 26))
+img_butter=img+10*(img-filtpb_butter(img, 46, 2))
 plt.subplot(131); plt.imshow(img_gauss, cmap="gray",vmin=0,vmax=255,interpolation="none")
 plt.title('Filtre gaussien (a=1,fc=26)')
 plt.subplot(132); plt.imshow(img, cmap="gray",vmin=0,vmax=255,interpolation="none")
@@ -101,7 +97,7 @@ def sliders_spatial(a=3, taille=5):
     plt.imshow(img_unsharp, cmap="gray",vmin=0,vmax=255, interpolation="none") 
     plt.title(f'Unsharp filtering (a={a},taille={taille})')
     plt.show()
-slider3 = interactive(sliders_spatial, a=(0, 3, 1), taille=(3, 40, 2)) 
+#slider3 = interactive(sliders_spatial, a=(0, 3, 1), taille=(3, 40, 2)) 
 #figure(3)
 img_unsharp = unsharp_filter(img/np.max(img), 5, 3)*255 
 plt.subplot(121); 
@@ -138,7 +134,7 @@ def sliders_laplacien(c=80):
     plt.imshow(img_laplace, cmap="gray",vmin=0,vmax=255, interpolation="none")
     plt.title(f'Rehaussement par laplacien (spectral,c={c})')
     plt.show()
-slider4 = interactive(sliders_laplacien, c=(0, 100, 5)) 
+#slider4 = interactive(sliders_laplacien, c=(0, 100, 5)) 
 #display(slider4)
 lap = laplacien(img)
 img_laplace = img + 1000*lap/np.max(lap)
@@ -162,7 +158,7 @@ def sliders_laplacien(c=80):
     plt.imshow(img_laplace2, cmap="gray",vmin=0,vmax=255, interpolation="none") 
     plt.title(f'Rehaussement par laplacien (spatial, c={c})')
     plt.show()
-slider5 = interactive(sliders_laplacien, c=(0, 100, 5)) 
+#slider5 = interactive(sliders_laplacien, c=(0, 100, 5)) 
 #display(slider5)
 img_laplace2 = img - 80*lap2/np.max(lap2)
 plt.subplot(121); 
